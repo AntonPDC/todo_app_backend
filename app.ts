@@ -1,15 +1,9 @@
 import express, { Request, Response } from "express";
 const mongoose = require("mongoose");
-const cors = require("cors");
 const app = express();
 const port = process.env.PORT || 8000;
 const { MongoClient, ServerApiVersion } = require("mongodb");
 
-const corsOptions = {
-  origin: "http://localhost:3000",
-};
-
-app.use(cors());
 app.use(express.json());
 
 const uri =
