@@ -1,4 +1,5 @@
 import express, { Request, Response } from "express";
+import todoRouter from "./routes/Todos";
 const mongoose = require("mongoose");
 const app = express();
 const port = process.env.PORT || 8000;
@@ -21,6 +22,8 @@ async function run() {
   console.log("Pinged your deployment. You successfully connected to MongoDB!");
 }
 run().catch(console.dir);
+
+app.use("/todos", todoRouter);
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);

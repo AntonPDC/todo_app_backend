@@ -7,7 +7,7 @@ interface TodoSchema {
 }
 
 const todoListSchema = new Schema<TodoSchema>({
-  id: { type: Number, required: true },
+  id: { type: Number, required: true, unique: true },
   text: { type: String, required: true },
   completed: { type: Boolean, required: true },
 });
