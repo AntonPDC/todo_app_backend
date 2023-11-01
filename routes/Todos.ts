@@ -6,7 +6,6 @@ const todoRouter = express.Router();
 todoRouter.post("/create-todo", async (req: Request, res: Response) => {
   try {
     const newTodo = new Todos({
-      id: req.body.id,
       text: req.body.text,
       completed: req.body.completed,
     });

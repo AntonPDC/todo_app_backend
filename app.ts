@@ -4,11 +4,12 @@ const mongoose = require("mongoose");
 const app = express();
 const port = process.env.PORT || 8000;
 const { MongoClient, ServerApiVersion } = require("mongodb");
+const dotenv = require("dotenv");
 
+dotenv.config();
 app.use(express.json());
 
-const uri =
-  "mongodb+srv://antonpdecesare:admin@todoapp.uuygnx8.mongodb.net/?retryWrites=true&w=majority";
+const uri = process.env.MONGO_URI;
 const client = new MongoClient(uri, {
   serverApi: {
     version: ServerApiVersion.v1,
@@ -19,9 +20,14 @@ const client = new MongoClient(uri, {
 async function run() {
   await client.connect();
   await client.db("admin").command({ ping: 1 });
-  console.log("Pinged your deployment. You successfully connected to MongoDB!");
 }
 run().catch(console.dir);
+
+mongoose.set("strictQuery", true);
+mongoose.connect(process.env.MONGO_URI);
+const db = mongoose.connection;
+db.on("error", (error: any) => console.log(error));
+db.once("open", () => console.log("DB Connected"));
 
 app.use("/todos", todoRouter);
 

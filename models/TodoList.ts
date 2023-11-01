@@ -1,13 +1,11 @@
 import mongoose, { Model, Schema } from "mongoose";
 
 interface TodoSchema {
-  id: number;
   text: string;
   completed: boolean;
 }
 
 const todoListSchema = new Schema<TodoSchema>({
-  id: { type: Number, required: true, unique: true },
   text: { type: String, required: true },
   completed: { type: Boolean, required: true },
 });
