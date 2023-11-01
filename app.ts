@@ -1,39 +1,54 @@
-import express, { Request, Response } from "express";
+import express, { Application, Request, Response } from "express";
+import mongoose, { Connection } from "mongoose";
+import { MongoClient, ServerApiVersion } from "mongodb";
+import dotenv from "dotenv";
 import todoRouter from "./routes/Todos";
-const mongoose = require("mongoose");
-const app = express();
-const port = process.env.PORT || 8000;
-const { MongoClient, ServerApiVersion } = require("mongodb");
-const dotenv = require("dotenv");
 
 dotenv.config();
-app.use(express.json());
+const app: Application = express();
+const port: number = parseInt(process.env.PORT || "8000", 10);
+const uri: string = process.env.MONGO_URI!;
 
-const uri = process.env.MONGO_URI;
-const client = new MongoClient(uri, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  },
-});
-async function run() {
-  await client.connect();
-  await client.db("admin").command({ ping: 1 });
+if (!uri) {
+  console.error(
+    "MONGO_URI environment variable is not defined. Please set it in your .env file."
+  );
+  process.exit(1);
 }
-run().catch(console.dir);
+async function connectToMongoDB() {
+  const client: MongoClient = new MongoClient(uri, {
+    serverApi: {
+      version: ServerApiVersion.v1,
+      strict: true,
+      deprecationErrors: true,
+    },
+  });
 
-mongoose.set("strictQuery", true);
-mongoose.connect(process.env.MONGO_URI);
-const db = mongoose.connection;
-db.on("error", (error: any) => console.log(error));
-db.once("open", () => console.log("DB Connected"));
+  try {
+    await client.connect();
+    await client.db("admin").command({ ping: 1 });
+  } catch (error) {
+    console.error("Error connecting to MongoDB:", error);
+  }
+}
+
+connectToMongoDB();
+
+mongoose.connect(uri);
+
+const db: Connection = mongoose.connection;
+db.on("error", (error: any) => {
+  console.error("Mongoose connection error:", error);
+});
+
+app.use(express.json());
 
 app.use("/todos", todoRouter);
 
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
 app.get("/", (req: Request, res: Response) => {
   res.send("Hello, Express with TypeScript!");
+});
+
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
 });
