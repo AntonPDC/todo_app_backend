@@ -17,4 +17,10 @@ todoRouter.post("/create-todo", async (req: Request, res: Response) => {
     res.status(500).send("Error saving todo");
   }
 });
+
+todoRouter.get("/", async (res: Response, req: Request) => {
+  try {
+  } catch (error) {}
+});
+
 export default todoRouter;
