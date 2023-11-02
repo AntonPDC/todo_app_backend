@@ -18,9 +18,13 @@ todoRouter.post("/create-todo", async (req: Request, res: Response) => {
   }
 });
 
-todoRouter.get("/", async (res: Response, req: Request) => {
+todoRouter.get("/get-todos", async (req: Request, res: Response) => {
   try {
-  } catch (error) {}
+    const allTodos = await Todos.find();
+    res.status(200).json(allTodos);
+  } catch (error) {
+    res.status(500).send("Could not retrieve todos");
+  }
 });
 
 export default todoRouter;
