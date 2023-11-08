@@ -1,30 +1,54 @@
-import express, { Request, Response } from "express";
-const mongoose = require("mongoose");
-const app = express();
-const port = process.env.PORT || 8000;
-const { MongoClient, ServerApiVersion } = require("mongodb");
+import express, { Application, Request, Response } from "express";
+import mongoose, { Connection } from "mongoose";
+import { MongoClient, ServerApiVersion } from "mongodb";
+import dotenv from "dotenv";
+import todoRouter from "./routes/Todos";
+
+dotenv.config();
+const app: Application = express();
+const port: number = parseInt(process.env.PORT || "8000", 10);
+const uri: string = process.env.MONGO_URI!;
+
+if (!uri) {
+  console.error(
+    "MONGO_URI environment variable is not defined. Please set it in your .env file."
+  );
+  process.exit(1);
+}
+async function connectToMongoDB() {
+  const client: MongoClient = new MongoClient(uri, {
+    serverApi: {
+      version: ServerApiVersion.v1,
+      strict: true,
+      deprecationErrors: true,
+    },
+  });
+
+  try {
+    await client.connect();
+    await client.db("admin").command({ ping: 1 });
+  } catch (error) {
+    console.error("Error connecting to MongoDB:", error);
+  }
+}
+
+connectToMongoDB();
+
+mongoose.connect(uri);
+
+const db: Connection = mongoose.connection;
+db.on("error", (error: any) => {
+  console.error("Mongoose connection error:", error);
+});
 
 app.use(express.json());
 
-const uri =
-  "mongodb+srv://antonpdecesare:admin@todoapp.uuygnx8.mongodb.net/?retryWrites=true&w=majority";
-const client = new MongoClient(uri, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  },
+app.use("/todos", todoRouter);
+
+app.get("/", (req: Request, res: Response) => {
+  res.send("Hello, Express with TypeScript!");
 });
-async function run() {
-  await client.connect();
-  await client.db("admin").command({ ping: 1 });
-  console.log("Pinged your deployment. You successfully connected to MongoDB!");
-}
-run().catch(console.dir);
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
-});
-app.get("/", (req: Request, res: Response) => {
-  res.send("Hello, Express with TypeScript!");
 });
